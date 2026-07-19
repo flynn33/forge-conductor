@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "mode": "host",
+  "generation": 0,
+  "executor": "grok_build",
+  "grok": {
+    "enabled": true,
+    "executor": "grok_build",
+    "api_base": "https://api.x.ai/v1",
+    "model": "grok-3",
+    "api_key_env": "XAI_API_KEY",
+    "timeout_sec": 600,
+    "max_tool_rounds": 40
+  },
+  "policy": {
+    "when_grok_mandatory_agents": true,
+    "when_grok_block_host_mutations": true,
+    "fallback_to_host_on_worker_error": false
+  }
+}

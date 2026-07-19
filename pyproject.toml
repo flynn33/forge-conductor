@@ -1,0 +1,36 @@
+[project]
+name = "forge-conductor"
+version = "0.1.0"
+description = "Local MCP orchestration layer with RAM-disk load, dashboard, and Grok Build agent backend"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastmcp>=3.0,<4",
+  "httpx>=0.27",
+  "playwright>=1.49",
+  "platformdirs>=4.0",
+  "psutil>=5.9",
+  "pyyaml>=6.0",
+  "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[project.scripts]
+forge-conductor = "forge_conductor.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["packages/forge_conductor"]
+
+# Include packaged agent markdown for importlib.resources
+[tool.hatch.build.targets.wheel.force-include]
+"packages/forge_conductor/agents" = "forge_conductor/agents"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["packages"]

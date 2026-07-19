@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "provider": "imdisk",
+  "provider_install_path": "C:\\Tools\\ImDisk",
+  "letter": "R",
+  "label": "FORGE-RAM",
+  "size_gb_default": 16,
+  "size_gb_min": 16,
+  "size_gb_max": 32,
+  "size_gb": 16,
+  "snapshot_interval_sec": 30,
+  "tier_free_gb_threshold": 2.0,
+  "tier_chunk_gb": 1.0,
+  "tier_usage_pct_threshold": 85,
+  "durable_root": "%USERPROFILE%\\.forge-conductor\\durable",
+  "source_app": "%FORGE_SOURCE_ROOT%",
+  "live_app": "R:\\app",
+  "live_home": "R:\\home",
+  "notes": "Management engine stays on disk. Set FORGE_SOURCE_ROOT to the package/repo root used to build the RAM image. durable_root expands %USERPROFILE%."
+}

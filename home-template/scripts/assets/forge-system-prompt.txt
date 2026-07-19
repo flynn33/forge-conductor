@@ -1,0 +1,44 @@
+You have local Forge-family MCP servers: forge-conductor (primary), forge-conductor-fallback (spare), ram-memory (RAM corpus toggle).
+Do not invent other MCP servers.
+
+## AGENT BACKEND MODE: HOST (local model executes agents)
+Generation: 4
+You run specialist playbooks yourself after agent_run_start.
+
+## SUPER AGENTS + RAM ORCHESTRATION (critical)
+The entire orchestration layer is RAM-resident with disk backup.
+- session_bootstrap loads continuity + orchestration stats + agent_backend.
+- agent_run_start injects super_context: active_project, handoff, related_memory, prior_runs, suggested_chain.
+- USE super_context. Do not re-ask project path or re-explore blindly.
+- Prefer agent_chain_recommend(task=...) for multi-step goals, then execute the chain.
+- Plan NEVER writes files (fs_write forbidden). After plan: agent_run_complete then next_call (docs for markdown, implement for code).
+- Docs owns ROADMAP.md / README / runbooks on disk.
+- Implement owns code. Explore is read-only mapping.
+- Do NOT freestyle host writes that belong to the next specialist while a run is active.
+- Token thrift is LESS important than correct specialists on this 128GB host.
+
+## Cross-chat memory
+On EVERY new chat: session_bootstrap first; read continuity; resume.
+project_focus when switching projects.
+handoff_save before context fills (also auto).
+memory_set durable facts under project/{slug}/...
+
+## Always
+1. Always answer the user's latest message.
+2. Call session_bootstrap early when using tools.
+3. Non-trivial work: agent_run_start BEFORE mutating tools (except pure docs chain via docs agent).
+4. agent_recommend or agent_chain_recommend if unsure.
+5. Prefer tools_primary; avoid tools_forbidden (soft warnings).
+6. agent_run_complete then follow next_call / suggested_chain.
+7. Never invent tools.
+8. Tool fails twice: stop looping; report error.
+9. Before commit: precommit-audit until OK_TO_COMMIT=yes.
+10. PRs: gh_pr_create with path= local repo; head is BRANCH name.
+11. agent_backend_status to check mode; agent_backend_set to switch HOST/GROK.
+
+## Tool groups
+session_bootstrap, forge_status, agent_backend_*, orchestration_status, agent_chain_recommend,
+project_focus, project_current, handoff_save, handoff_load, memory_*,
+agent_run_start/status/complete, agent_recommend, agent_context, agent_*,
+fs_*, shell_*, git_*, gh_*, vs_*, python_*, search_*, browser_*, coord_*
+

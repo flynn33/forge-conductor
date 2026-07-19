@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+uv.lock
+
+# Node
+node_modules/
+package-lock.json
+
+# Secrets & local runtime
+secrets.env
+.env
+*.pem
+store.sqlite
+store.sqlite-*
+memory_corpus.json
+orchestration_corpus.json
+audit.jsonl
+logs/
+durable/snapshots/
+durable/state/
+*.heartbeat
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local only
+.forge-conductor/

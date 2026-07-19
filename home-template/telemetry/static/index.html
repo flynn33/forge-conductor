@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FORGE RIG // TELEMETRY</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="grid-floor" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="brand-mark">◈</div>
+        <div>
+          <h1><span class="neon">FORGE</span> RIG <span class="dim">//</span> TELEMETRY</h1>
+          <div class="sub">ON-DEMAND STACK · RAM ORCHESTRATION · MCP · AGENTS · NO AUTH</div>
+        </div>
+      </div>
+      <div class="pills">
+        <div class="pill live" id="pill-link"><span class="dot" id="dot"></span>LINK</div>
+        <div class="pill" id="pill-updated">—</div>
+        <div class="pill" id="pill-mcp">MCP —</div>
+        <div class="pill" id="pill-agents">AGENTS —</div>
+        <div class="pill" id="pill-load">LOAD —</div>
+      </div>
+    </header>
+
+    <!-- Stack master switch: load entire orchestration into RAM -->
+    <section class="stack-console" id="stack-console">
+      <div class="stack-left">
+        <div class="stack-title">ORCHESTRATION LAYER</div>
+        <div class="stack-sub" id="stack-sub">RAM-DISK · ON-DEMAND · 16–32 GB · SNAPSHOT TO DISK · NO AUTOSTART</div>
+        <div class="stack-meta" id="stack-meta">checking…</div>
+      </div>
+      <div class="stack-center">
+        <div class="stack-state" id="stack-state">—</div>
+        <div class="stack-roles" id="stack-roles"></div>
+        <div class="stack-ram" id="stack-ram">RAM DISK —</div>
+      </div>
+      <div class="stack-actions">
+        <button type="button" class="stack-btn load" id="btn-stack-load" title="Create RAM disk, install full package, start keepers">LOAD</button>
+        <button type="button" class="stack-btn unload" id="btn-stack-unload" title="Snapshot state, stop keepers, destroy RAM disk">UNLOAD</button>
+        <button type="button" class="stack-btn restart" id="btn-stack-restart" title="Unload then load (full recycle)">RESTART</button>
+        <button type="button" class="stack-btn snap" id="btn-stack-snapshot" title="Force snapshot of live state to durable disk">SNAPSHOT</button>
+        <button type="button" class="stack-btn warm" id="btn-stack-warm" title="Warm process-RAM corpora without remount">WARM</button>
+      </div>
+    </section>
+
+    <!-- Agent backend: HOST (Qwen) vs GROK (external) -->
+    <section class="stack-console backend-console" id="backend-console">
+      <div class="stack-left">
+        <div class="stack-title">AGENT BACKEND</div>
+        <div class="stack-sub" id="backend-sub">HOST = local Qwen runs agents · GROK = Grok Build session runs agents (paste connect prompt)</div>
+        <div class="stack-meta" id="backend-meta">checking…</div>
+      </div>
+      <div class="stack-center">
+        <div class="stack-state" id="backend-state">—</div>
+        <div class="stack-ram" id="backend-worker">GROK BUILD —</div>
+      </div>
+      <div class="stack-actions">
+        <button type="button" class="stack-btn load" id="btn-backend-host" title="Local Qwen executes agent playbooks">HOST</button>
+        <button type="button" class="stack-btn restart" id="btn-backend-grok" title="Activate Grok Build plugin; show connect prompt to paste into Grok Build">GROK</button>
+        <button type="button" class="stack-btn snap" id="btn-backend-prompt" title="Show Grok Build connect prompt again">PROMPT</button>
+      </div>
+    </section>
+
+    <!-- Modal: Grok Build connect prompt (plugin-style) -->
+    <div class="modal-overlay" id="connect-modal" hidden>
+      <div class="modal-card" role="dialog" aria-labelledby="connect-modal-title">
+        <div class="modal-head">
+          <h2 id="connect-modal-title">Grok Build · Connect Prompt</h2>
+          <button type="button" class="modal-close" id="connect-modal-close" title="Close">×</button>
+        </div>
+        <p class="modal-hint">Copy and paste into a <strong>Grok Build</strong> session. No API key. Grok Build will attach to Forge and run sub-agents.</p>
+        <textarea class="modal-text" id="connect-prompt-text" readonly rows="18" spellcheck="false"></textarea>
+        <div class="modal-actions">
+          <button type="button" class="stack-btn load" id="connect-copy">COPY PROMPT</button>
+          <button type="button" class="stack-btn unload" id="connect-modal-done">DONE</button>
+        </div>
+        <div class="modal-status" id="connect-copy-status"></div>
+      </div>
+    </div>
+
+    <!-- System strip -->
+    <section class="sys-strip">
+      <div class="sys-card">
+        <div class="sys-label">CPU</div>
+        <div class="sys-value" id="cpu-val">—<small>%</small></div>
+        <div class="meter"><i id="cpu-bar"></i></div>
+        <div class="sys-meta" id="cpu-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">RAM</div>
+        <div class="sys-value" id="ram-val">—<small>%</small></div>
+        <div class="meter ram"><i id="ram-bar"></i></div>
+        <div class="sys-meta" id="ram-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">GPU</div>
+        <div class="sys-value" id="gpu-val">—<small>%</small></div>
+        <div class="meter gpu"><i id="gpu-bar"></i></div>
+        <div class="sys-meta" id="gpu-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">POWER</div>
+        <div class="sys-value" id="pwr-val">—<small>W</small></div>
+        <div class="meter pwr"><i id="pwr-bar"></i></div>
+        <div class="sys-meta" id="pwr-meta">—</div>
+      </div>
+      <div class="sys-card chart-card">
+        <div class="sys-label">LOAD TRACE</div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <!-- MCP servers -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> MCP SERVERS</h2>
+          <span class="panel-meta" id="mcp-panel-meta">—</span>
+        </div>
+        <div class="card-grid" id="mcp-cards"></div>
+      </section>
+
+      <!-- All MCP tools -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> MCP TOOLS</h2>
+          <span class="panel-meta" id="tools-panel-meta">—</span>
+        </div>
+        <div class="pack-strip" id="pack-strip"></div>
+        <div class="card-grid tools" id="tool-cards"></div>
+      </section>
+
+      <!-- Agents -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> SUB-AGENTS</h2>
+          <span class="panel-meta" id="agent-panel-meta">—</span>
+        </div>
+        <div class="card-grid agents" id="agent-cards"></div>
+      </section>
+
+      <!-- Live feed -->
+      <section class="panel feed-panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> LIVE STREAM <span class="blink">▮</span> TOOL CALLS / COMMANDS</h2>
+          <span class="panel-meta" id="feed-meta">—</span>
+        </div>
+        <div class="feed-window">
+          <div class="feed-scroll" id="live-feed"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div>NODE SIDECAR · <span id="origin">local</span> · LAN · NO AUTH · MCP-SAFE</div>
+      <div id="footer-meta">—</div>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
