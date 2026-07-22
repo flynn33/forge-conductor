@@ -112,34 +112,7 @@ Intentionally **permissive** (full user privileges for tools). **No authenticati
 
 ## License
 
-# Non-Commercial Open Source License (NC-OSL) v1.0
+Copyright 2026 James Daley
 
-**Copyright (c) 2026 James Daley**
-
-## Permission Notice
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and sublicense copies of the Software, **subject to the following conditions**:
-
-1. **Non-Commercial Use Only**: The Software may only be used, copied, modified, distributed, or sublicensed for non-commercial purposes. Commercial use, including but not limited to selling, licensing for a fee, incorporating into commercial products/services, or using in any revenue-generating activity, is strictly prohibited.
-
-2. **Attribution**: All copies or substantial portions of the Software must include the above copyright notice, this permission notice, and the full license text.
-
-3. **No Warranty**: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## Additional Terms
-
-- This license is intended for open-source sharing and collaboration in educational, research, personal, or other non-profit contexts.
-- If you wish to use this Software for commercial purposes, please contact the copyright holder at contact@ravenforgesoftware.com to discuss licensing options.
-- Derivative works must carry this same license (or a compatible non-commercial license) and clearly indicate modifications.
-- This license does not grant permission to use the names, trademarks, or logos of the copyright holder for endorsement or promotion without explicit prior written consent.
-
----
-
-**License Version**: 1.0  
-**Type**: Permissive, Non-Commercial  
-
----
-
-## Status
-
-Productization **documentation + vendored source snapshot** of a working rig implementation (2026-07). Not yet a one-click installer.
+This project is licensed under the Apache License, Version 2.0.
+See the [LICENSE](LICENSE) file for the full terms.
