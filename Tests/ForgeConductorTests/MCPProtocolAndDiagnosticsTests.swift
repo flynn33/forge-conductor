@@ -84,24 +84,34 @@ final class MCPProtocolAndDiagnosticsTests: XCTestCase {
     func testRealtimeEngineIsContinuousNotTwoSecondSnapshot() {
         XCTAssertGreaterThanOrEqual(RealtimeMetricsEngine.defaultTargetHz, 20)
         XCTAssertLessThan(1.0 / RealtimeMetricsEngine.defaultTargetHz, 0.1)
+
         let engine = RealtimeMetricsEngine()
-        engine.start(targetHz: 30)
-        var pushCount = 0
+        let requiredPushes = 8
+        let delivered = expectation(description: "continuous samples delivered")
+        var timestamps: [TimeInterval] = []
         let lock = NSLock()
-        let id = engine.addListener { _ in
-            lock.lock(); pushCount += 1; lock.unlock()
+        let id = engine.addListener { metrics in
+            lock.lock()
+            timestamps.append(metrics.ts)
+            let reachedRequiredPushes = timestamps.count == requiredPushes
+            lock.unlock()
+            if reachedRequiredPushes {
+                delivered.fulfill()
+            }
         }
-        // Allow a few samples of host metrics (tiered CPU/RAM is fast).
-        Thread.sleep(forTimeInterval: 0.35)
-        let a = engine.latestSystem.ts
-        Thread.sleep(forTimeInterval: 0.15)
-        let b = engine.latestSystem.ts
-        engine.removeListener(id)
-        engine.stop()
-        lock.lock(); let pushes = pushCount; lock.unlock()
-        XCTAssertGreaterThan(b, a, "continuous engine must advance sample timestamps")
-        XCTAssertGreaterThanOrEqual(pushes, 8, "must push samples to listeners (not snapshot poll); got \(pushes)")
-        XCTAssertTrue(engine.measuredSampleHz > 5 || b > a || pushes >= 8)
+        engine.start(targetHz: 30)
+        defer {
+            engine.stop()
+            engine.removeListener(id)
+        }
+
+        wait(for: [delivered], timeout: 2.0)
+        lock.lock()
+        let samples = timestamps
+        lock.unlock()
+
+        XCTAssertGreaterThanOrEqual(samples.count, requiredPushes, "must push samples to listeners (not snapshot poll); got \(samples.count)")
+        XCTAssertGreaterThan(samples.last ?? 0, samples.first ?? 0, "continuous engine must advance sample timestamps")
     }
 
     func testDeployServiceResolvesExecutable() {

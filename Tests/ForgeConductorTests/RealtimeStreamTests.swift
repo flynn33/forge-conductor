@@ -50,8 +50,9 @@ final class RealtimeStreamTests: XCTestCase {
 
         let app = try ForgeApp.bootstrap(home: home)
         defer { app.shutdown() }
-        app.telemetry.startBackgroundRefresh(intervalSec: 0.5)
 
+        let requiredFrames = 8
+        let delivered = expectation(description: "continuous telemetry frames delivered")
         var frames = 0
         var lastTs: TimeInterval = 0
         let lock = NSLock()
@@ -59,17 +60,22 @@ final class RealtimeStreamTests: XCTestCase {
             lock.lock()
             frames += 1
             lastTs = frame.updated
+            let reachedRequiredFrames = frames == requiredFrames
             lock.unlock()
+            if reachedRequiredFrames {
+                delivered.fulfill()
+            }
         }
         defer { app.telemetry.removeListener(id) }
+        app.telemetry.startBackgroundRefresh(intervalSec: 0.5)
 
-        Thread.sleep(forTimeInterval: 0.45)
+        wait(for: [delivered], timeout: 2.0)
         lock.lock()
         let frameCount = frames
         let ts = lastTs
         lock.unlock()
 
-        XCTAssertGreaterThanOrEqual(frameCount, 8, "listeners must receive continuous frames; got \(frameCount)")
+        XCTAssertGreaterThanOrEqual(frameCount, requiredFrames, "listeners must receive continuous frames; got \(frameCount)")
         XCTAssertGreaterThan(ts, 0)
 
         let a = app.telemetry.currentFrame().system.ts

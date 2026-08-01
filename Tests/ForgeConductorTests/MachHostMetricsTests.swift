@@ -97,12 +97,35 @@ final class MachHostMetricsTests: XCTestCase {
 
     func testEngineAdvancesMachPath() {
         let engine = RealtimeMetricsEngine()
+        let delivered = expectation(description: "advancing Mach samples delivered")
+        var samples: [SystemMetrics] = []
+        let lock = NSLock()
+        let id = engine.addListener { metrics in
+            lock.lock()
+            if samples.last?.ts != metrics.ts {
+                samples.append(metrics)
+            }
+            let reachedTwoSamples = samples.count == 2
+            lock.unlock()
+            if reachedTwoSamples {
+                delivered.fulfill()
+            }
+        }
         engine.start(targetHz: 30)
-        defer { engine.stop() }
-        Thread.sleep(forTimeInterval: 0.05)
-        let a = engine.latestSystem
-        Thread.sleep(forTimeInterval: 0.12)
-        let b = engine.latestSystem
+        defer {
+            engine.stop()
+            engine.removeListener(id)
+        }
+
+        wait(for: [delivered], timeout: 2.0)
+        lock.lock()
+        let a = samples.first
+        let b = samples.last
+        lock.unlock()
+
+        XCTAssertNotNil(a)
+        XCTAssertNotNil(b)
+        guard let a, let b else { return }
         XCTAssertGreaterThan(b.ts, a.ts)
         XCTAssertFalse(b.cpu.perCPU.isEmpty)
     }

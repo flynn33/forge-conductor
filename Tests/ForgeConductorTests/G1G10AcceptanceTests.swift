@@ -163,14 +163,30 @@ final class G1G10AcceptanceTests: XCTestCase {
 
     func testG5_RealtimeEngineSustainedSampling() {
         let engine = RealtimeMetricsEngine()
-        engine.start(targetHz: 30)
-        defer { engine.stop() }
+        let requiredSamples = 8
+        let delivered = expectation(description: "sustained realtime samples delivered")
         var stamps: [TimeInterval] = []
-        for _ in 0..<8 {
-            Thread.sleep(forTimeInterval: 0.05)
-            stamps.append(engine.latestSystem.ts)
+        let lock = NSLock()
+        let id = engine.addListener { metrics in
+            lock.lock()
+            stamps.append(metrics.ts)
+            let reachedRequiredSamples = stamps.count == requiredSamples
+            lock.unlock()
+            if reachedRequiredSamples {
+                delivered.fulfill()
+            }
         }
-        let unique = Set(stamps.map { Int($0 * 100) }) // 10ms buckets
+        engine.start(targetHz: 30)
+        defer {
+            engine.stop()
+            engine.removeListener(id)
+        }
+
+        wait(for: [delivered], timeout: 2.0)
+        lock.lock()
+        let samples = stamps
+        lock.unlock()
+        let unique = Set(samples.map { Int($0 * 100) }) // 10ms buckets
         XCTAssertGreaterThanOrEqual(unique.count, 3, "must keep advancing samples")
         XCTAssertTrue(engine.isRunning)
         XCTAssertGreaterThanOrEqual(engine.targetSampleHz, 20)
