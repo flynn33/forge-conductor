@@ -10,25 +10,33 @@ import Darwin
 final class RealtimeStreamTests: XCTestCase {
     func testHostStreamAdvancesWithoutSnapshotAPI() {
         let engine = RealtimeMetricsEngine()
-        engine.start(targetHz: 30)
-        defer { engine.stop() }
-
+        let requiredSamples = 8
+        let delivered = expectation(description: "realtime samples delivered")
+        delivered.expectedFulfillmentCount = requiredSamples
         var samples: [TimeInterval] = []
         let lock = NSLock()
         let id = engine.addListener { m in
             lock.lock()
             samples.append(m.ts)
+            let shouldFulfill = samples.count <= requiredSamples
             lock.unlock()
+            if shouldFulfill {
+                delivered.fulfill()
+            }
         }
-        defer { engine.removeListener(id) }
+        engine.start(targetHz: 30)
+        defer {
+            engine.stop()
+            engine.removeListener(id)
+        }
 
-        Thread.sleep(forTimeInterval: 0.45)
+        wait(for: [delivered], timeout: 2.0)
         lock.lock()
         let count = samples.count
         let unique = Set(samples.map { Int($0 * 100) })
         lock.unlock()
 
-        XCTAssertGreaterThanOrEqual(count, 8, "tiered engine must push many samples; got \(count)")
+        XCTAssertGreaterThanOrEqual(count, requiredSamples, "tiered engine must push many samples; got \(count)")
         XCTAssertGreaterThanOrEqual(unique.count, 5, "timestamps must advance; unique=\(unique.count)")
         XCTAssertTrue(engine.isRunning)
         XCTAssertGreaterThanOrEqual(engine.targetSampleHz, 20)
