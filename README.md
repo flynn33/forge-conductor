@@ -1,124 +1,135 @@
-# Forge Conductor
+# Forge-Conductor (Swift)
 
-**Lightweight, on-demand orchestration layer for local AI development.**
+Native **Swift** control plane and MCP server for **local models in [LM Studio](https://lmstudio.ai)** on macOS.
 
-Forge Conductor is a **host-driven MCP orchestration layer** designed for high-RAM Windows rigs (Mac packaging planned). It does **not** embed an LLM. Host models (LM Studio, Codex, Claude Code, Grok Build, etc.) call tools; Forge provides memory, agents, filesystem/shell/git, failover, and a browser **management dashboard**.
+This project is **not** Claude Code orchestration, CCDT, or `~/.claude/local-mcp`.
 
-> **GitHub:** [flynn33/forge-conductor](https://github.com/flynn33/forge-conductor)  
-> *(Repository name is historical spelling; product name is **Forge Conductor**.)*
+### Context & agent continuity (v0.7)
 
----
+Cross-chat handoff lives **inside** the same stdio MCP `serve` process (no HTTP):
 
-## Why it exists
+| Tool | Role |
+|------|------|
+| `session_checkpoint` | Soft-save task + open agents |
+| `session_handoff` | Finalize resume packet (`resume_seed`) |
+| `context_get` / `context_list` | Bootstrap a new chat |
 
-Local coding models need a **stable, privileged tool plane** with:
+Packets are stored under `FORGE_CONDUCTOR_HOME` (SQLite + `memory/handoffs/`). Open agent sessions are snapshotted for reattach. Deploy remains **Deploy to LM Studio** (primary + fallback mcpBridge). Details: [`docs/CONTEXT-AGENT-CONTINUITY.md`](docs/CONTEXT-AGENT-CONTINUITY.md).
 
-- **RAM-first** hot state (memory + agent orchestration) and durable disk backup  
-- **On-demand load** of the full stack into a **RAM disk** (operator-controlled)  
-- **Primary + fallback + memory** MCP keepers with fail-forward restarts  
-- **Sub-agents** as playbooks (explore / plan / implement / …), not separate models  
-- Optional **agent backend toggle**: local host model **or** **Grok Build** session as executor  
-- A **telemetry dashboard** for stack control and status (no auth; trusted LAN)
+New-chat flow: call `context_get`, reattach any listed agent sessions with
+`agent_run_status`, then pass the returned `handoff_id` to subsequent
+`session_checkpoint` or `session_handoff` calls.
 
----
+### How LM Studio connects
 
-## Architecture at a glance
+LM Studio is the MCP **host**. It spawns a Forge **stdio** server:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Management engine (always-on, disk)                        │
-│  Node telemetry → http://127.0.0.1:7788/                    │
-│  LOAD / UNLOAD / RESTART · HOST / GROK · SNAPSHOT           │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ operator LOAD
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  RAM disk (e.g. R:) — full package + live home              │
-│  keepers: primary · fallback · memory                       │
-│  SQLite + JSON corpora = durable backup                     │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ stdio MCP
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-   LM Studio             Grok Build          Other hosts
-   (router or host)      (optional agent     (Codex, …)
-                          executor)
+| Executable | Argv | Role |
+|------------|------|------|
+| `…/Forge Conductor.app/…/Forge Conductor` | `serve` | **Default MCP** via `ForgeProcessEntry` (Deploy to LM Studio) |
+| Selected app or CLI executable | `serve` + `FORGE_MCP_ROLE` | Independent primary and fallback MCP registrations |
+| App (LaunchAgent) | `manager run --home …` | Dashboard manager (`install-login`) |
+| App (double-click) | _(none)_ | SwiftUI GUI |
+
+**Product path (v0.5+):** GUI → **LM Studio MCP** → **Deploy to LM Studio**. Forge transactionally writes primary + failover configuration, triggers LM Studio reload (relaunching it only if needed), verifies LM Studio synchronized the exact revision, and independently smokes both tool servers. Details: [`docs/LM-STUDIO-CONNECTION.md`](docs/LM-STUDIO-CONNECTION.md), operator test plan: [`docs/RELEASE-0.5.0-TEST.md`](docs/RELEASE-0.5.0-TEST.md).
+
+```bash
+# After building products — does NOT write LM Studio by itself:
+forge-conductor install
+# Explicit deploy (same as GUI Deploy to LM Studio):
+forge-conductor install-lmstudio-plugin
+# GUI: LM Studio MCP tab → Deploy to LM Studio
 ```
 
-See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for diagrams and component map.
+No manual LM Studio configuration-file edit or restart is required. Selecting which plugins a model may use remains a per-chat LM Studio choice.
 
----
+## Requirements
 
-## Repository layout
+- macOS 26+
+- Swift 6 / Xcode toolchain
+- [LM Studio](https://lmstudio.ai) for running local models
 
-| Path | Purpose |
-|------|---------|
-| `packages/forge_conductor/` | Python package (MCP server, tools, RAM memory, agents) |
-| `home-template/` | Template for `~/.forge-conductor` (scripts, telemetry UI, defaults) |
-| `docs/` | Design, architecture, packaging roadmap |
-| `tests/` | Pytest suite (from product worktree) |
-| `pyproject.toml` | Package metadata |
+## Quick start
 
-**Not shipped:** secrets, live `store.sqlite` user data, logs, `node_modules`, RAM-disk durable snapshots.
+```bash
+git clone https://github.com/flynn33/forge-conductor.git
+cd forge-conductor
+# Reproducible native app build, bundle staging, and launch:
+./script/build_and_run.sh --verify
 
----
+# Full Core/CLI/connector acceptance suite:
+swift test
 
-## Quick start (Windows, developer)
+# CLI install (from built product or SPM release)
+forge-conductor install
+forge-conductor doctor
+forge-conductor manager start --open   # native dashboard / manager
+# LM Studio starts MCP via ~/.lmstudio/mcp.json → forge-conductor serve (Swift stdio)
+```
 
-1. Install Python 3.12+, Node 20+, [ImDisk Toolkit](https://sourceforge.net/projects/imdisk-toolkit/) (for RAM disk).  
-2. Create venv and install package from `packages/` / `pyproject.toml`.  
-3. Copy `home-template` → `%USERPROFILE%\.forge-conductor` (merge carefully).  
-4. Register elevated task: `scripts/install-forge-ramdisk-elevated-task.ps1` (admin once).  
-5. Start telemetry: `telemetry/run.ps1` or scheduled task.  
-6. Open http://127.0.0.1:7788/ → **LOAD**.  
-7. Point LM Studio `mcp.json` at `bin/forge-serve.cmd` (and optional fallback / ram-memory).
+## What the UI shows
 
-Full notes: **[docs/PACKAGING.md](docs/PACKAGING.md)**.
+| Surface | Meaning |
+|---------|---------|
+| **FORGE RIG** | Host telemetry (CPU/GPU/RAM/disk) + LM Studio-oriented load |
+| **LM Studio MCP** | LM Studio host, model backends, Forge MCP from `mcp.json` / live processes |
+| **Agents / Tools / Feed** | Playbooks and tool audit for local-model agent runs |
+| **Manager** | Start/Stop HTTP control plane, settings, doctor |
 
----
+**Never listed:** CCDT, Claude Code `local-mcp` binaries, project-continuity (foreign projects).
 
-## Agent backend (HOST / GROK Build)
+The LaunchAgent manager is the single owner of the loopback dashboard port. Opening the SwiftUI app attaches to that manager through a native typed client; it does not start a competing listener. The app uses a persistent button-based navigation column; use its toolbar button or the **Navigation** menu to show or hide it.
 
-| Mode | Who runs `agent_run_*` playbooks |
-|------|-----------------------------------|
-| **HOST** | Local chat model (e.g. Qwen in LM Studio) |
-| **GROK** | **Grok Build** session — dashboard shows a **connect prompt** to paste; no cloud API key required |
+## Architecture
 
-When GROK is active, the local model is **router only** (mandatory offload + tool middleware blocks freestyle mutators).
+| Layer | Responsibility |
+|-------|----------------|
+| **Domain** | Typed models (`ForgeSnapshot`, `AppConfig`, agent sessions) |
+| **Infrastructure** | SQLite, paths, process runner, PDF, audit |
+| **Application** | `ForgeApp`, catalog, sessions, tool packs |
+| **MCP** | JSON-RPC stdio for LM Studio (`tools/list`, `tools/call`) |
+| **Dashboard / App** | SwiftUI + Metal gauges; optional loopback HTTP |
+| **CLI** | install / doctor / serve / manager |
 
-See **[docs/AGENT-BACKEND.md](docs/AGENT-BACKEND.md)**.
+State: `~/.forge-conductor` (`FORGE_CONDUCTOR_HOME` override).
+LM Studio MCP config: `~/.lmstudio/mcp.json`.
 
----
+## Design principles
 
-## Documentation map
+1. OOP modules + DI via `ForgeApp.bootstrap`.
+2. Apple-native stack (Foundation, SQLite3, Network, Metal) — no Node/Python core.
+3. **LM Studio is the host** for local models; Forge is the MCP tool server + rig.
+4. Durable sessions in SQLite for local-model agent runs.
+5. SwiftPM acceptance tests and native GUI compilation gate release builds; Xcode remains the distribution/signing project.
 
-| Doc | Content |
-|------|---------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, data flow, process model |
-| [DESIGN.md](docs/DESIGN.md) | Design principles, decisions, trade-offs |
-| [RAMDISK.md](docs/RAMDISK.md) | On-demand ImDisk volume, elevated ops, snapshots |
-| [DASHBOARD.md](docs/DASHBOARD.md) | Telemetry UI / control plane |
-| [AGENT-BACKEND.md](docs/AGENT-BACKEND.md) | HOST vs Grok Build executor |
-| [ROADMAP.md](docs/ROADMAP.md) | Product path to Windows/Mac installers |
-| [PACKAGING.md](docs/PACKAGING.md) | What to ship; exclusions; install sketch |
+Current build, test, static-analysis, orphan-file, and attribution evidence is
+recorded in [`docs/AUDIT-2026-07-23.md`](docs/AUDIT-2026-07-23.md).
 
----
+## CLI
 
-## Security model
-
-Intentionally **permissive** (full user privileges for tools). **No authentication** on the dashboard (trusted local/LAN). Treat MCP registration like granting full local account access to the host model.
-
----
+```
+forge-conductor install
+forge-conductor install-lmstudio-plugin [--binary PATH]
+forge-conductor doctor
+forge-conductor status
+forge-conductor agents
+forge-conductor serve                 # MCP stdio (LM Studio client)
+forge-conductor manager run [--open]
+forge-conductor manager start|stop|restart|status
+forge-conductor version
+```
 
 ## Contributing
 
-This project is open source under Apache License, Version 2.0. You are welcome to use, modify, and redistribute the code under that license.
+This project is open source under the Apache License, Version 2.0. You are
+welcome to use, modify, and redistribute the code under that license.
 
-Outside contributions to this repository are not accepted. Pull requests and collaboration requests will not be reviewed or merged. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Outside contributions are not accepted. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for the repository policy.
 
 ## License
 
 Copyright 2026 James Daley
 
-This project is licensed under the Apache License, Version 2.0.
-See the [LICENSE](LICENSE) file for the full terms.
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the
+full terms.

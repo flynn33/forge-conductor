@@ -1,17 +1,21 @@
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-uv.lock
+.DS_Store
+Thumbs.db
+.build/
+build/
+dist/
+default.profraw
+*.profraw
+*.xcresult
+xcuserdata/
+.idea/
+.vscode/
+.claude/
+.codex/
+.remember/
+*.swp
+*~
 
-# Node
-node_modules/
-package-lock.json
-
-# Secrets & local runtime
+# Secrets and local runtime state
 secrets.env
 .env
 *.pem
@@ -24,13 +28,4 @@ logs/
 durable/snapshots/
 durable/state/
 *.heartbeat
-
-# OS / IDE
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.swp
-
-# Local only
 .forge-conductor/

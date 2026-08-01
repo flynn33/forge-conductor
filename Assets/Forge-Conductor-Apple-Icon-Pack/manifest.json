@@ -1,0 +1,166 @@
+{
+  "product": "Forge-Conductor",
+  "artifact": "Apple Icon Pack",
+  "files": [
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "sha256": "13b1c7461192863c9f3ab3ceab313acd6f6531898360983495bf13d48dfc967f",
+      "bytes": 1257
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_128x128.png",
+      "sha256": "73fc32b410ee1ccd4d9de19e98ee01026496ed4fc49afb70204c6b2bcf9cd53e",
+      "bytes": 29471
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png",
+      "sha256": "cbbedd835a69a06812832f28f6e4504bf6d18aebc873bbc6c0d7114b02da5753",
+      "bytes": 108418
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_16x16.png",
+      "sha256": "582c2c29ddcfd8eba1eeecff222346a9b33972c0a6bccacb0fc9dbbf031771de",
+      "bytes": 822
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_16x16@2x.png",
+      "sha256": "aa33af964e1316b0cad43d5fc1d4899b0af0647a4146169142a68c3b92afdeb9",
+      "bytes": 2660
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_256x256.png",
+      "sha256": "cbbedd835a69a06812832f28f6e4504bf6d18aebc873bbc6c0d7114b02da5753",
+      "bytes": 108418
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_256x256@2x.png",
+      "sha256": "6e3b3779cd73a983d75ece1d2e053a691af04c669e07855c03fe58dfba518fc8",
+      "bytes": 351551
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_32x32.png",
+      "sha256": "aa33af964e1316b0cad43d5fc1d4899b0af0647a4146169142a68c3b92afdeb9",
+      "bytes": 2660
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_32x32@2x.png",
+      "sha256": "0fbbd36df6f98187d3997fdaf6bf34baa1ff02c313c254bf5eddfa195b830a84",
+      "bytes": 8500
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_512x512.png",
+      "sha256": "6e3b3779cd73a983d75ece1d2e053a691af04c669e07855c03fe58dfba518fc8",
+      "bytes": 351551
+    },
+    {
+      "path": "Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png",
+      "sha256": "0e5eb2425d3dd7dad5f1f024a1351635e25d0bf7120a265493da28d33c4432aa",
+      "bytes": 867823
+    },
+    {
+      "path": "Assets.xcassets/Contents.json",
+      "sha256": "f5fb0e1f3a8142892ed092efb5955c1c2cc537003a89ad7bbdb9dade7fe8985f",
+      "bytes": 60
+    },
+    {
+      "path": "Forge-Conductor.icns",
+      "sha256": "47b2c18dbe355fb94a5fcabfeebaf6f8433fc6fa4f3502574a27b55921fa3192",
+      "bytes": 1805264
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_128x128.png",
+      "sha256": "73fc32b410ee1ccd4d9de19e98ee01026496ed4fc49afb70204c6b2bcf9cd53e",
+      "bytes": 29471
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_128x128@2x.png",
+      "sha256": "cbbedd835a69a06812832f28f6e4504bf6d18aebc873bbc6c0d7114b02da5753",
+      "bytes": 108418
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_16x16.png",
+      "sha256": "582c2c29ddcfd8eba1eeecff222346a9b33972c0a6bccacb0fc9dbbf031771de",
+      "bytes": 822
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_16x16@2x.png",
+      "sha256": "aa33af964e1316b0cad43d5fc1d4899b0af0647a4146169142a68c3b92afdeb9",
+      "bytes": 2660
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_256x256.png",
+      "sha256": "cbbedd835a69a06812832f28f6e4504bf6d18aebc873bbc6c0d7114b02da5753",
+      "bytes": 108418
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_256x256@2x.png",
+      "sha256": "6e3b3779cd73a983d75ece1d2e053a691af04c669e07855c03fe58dfba518fc8",
+      "bytes": 351551
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_32x32.png",
+      "sha256": "aa33af964e1316b0cad43d5fc1d4899b0af0647a4146169142a68c3b92afdeb9",
+      "bytes": 2660
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_32x32@2x.png",
+      "sha256": "0fbbd36df6f98187d3997fdaf6bf34baa1ff02c313c254bf5eddfa195b830a84",
+      "bytes": 8500
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_512x512.png",
+      "sha256": "6e3b3779cd73a983d75ece1d2e053a691af04c669e07855c03fe58dfba518fc8",
+      "bytes": 351551
+    },
+    {
+      "path": "Forge-Conductor.iconset/icon_512x512@2x.png",
+      "sha256": "0e5eb2425d3dd7dad5f1f024a1351635e25d0bf7120a265493da28d33c4432aa",
+      "bytes": 867823
+    },
+    {
+      "path": "README.md",
+      "sha256": "0c73eb3567caece10c633d1319afbcd066905ca0a4743731c034ad113f0b2236",
+      "bytes": 1215
+    },
+    {
+      "path": "png/forge-conductor-1024.png",
+      "sha256": "0e5eb2425d3dd7dad5f1f024a1351635e25d0bf7120a265493da28d33c4432aa",
+      "bytes": 867823
+    },
+    {
+      "path": "png/forge-conductor-128.png",
+      "sha256": "73fc32b410ee1ccd4d9de19e98ee01026496ed4fc49afb70204c6b2bcf9cd53e",
+      "bytes": 29471
+    },
+    {
+      "path": "png/forge-conductor-16.png",
+      "sha256": "582c2c29ddcfd8eba1eeecff222346a9b33972c0a6bccacb0fc9dbbf031771de",
+      "bytes": 822
+    },
+    {
+      "path": "png/forge-conductor-256.png",
+      "sha256": "cbbedd835a69a06812832f28f6e4504bf6d18aebc873bbc6c0d7114b02da5753",
+      "bytes": 108418
+    },
+    {
+      "path": "png/forge-conductor-32.png",
+      "sha256": "aa33af964e1316b0cad43d5fc1d4899b0af0647a4146169142a68c3b92afdeb9",
+      "bytes": 2660
+    },
+    {
+      "path": "png/forge-conductor-512.png",
+      "sha256": "6e3b3779cd73a983d75ece1d2e053a691af04c669e07855c03fe58dfba518fc8",
+      "bytes": 351551
+    },
+    {
+      "path": "png/forge-conductor-64.png",
+      "sha256": "0fbbd36df6f98187d3997fdaf6bf34baa1ff02c313c254bf5eddfa195b830a84",
+      "bytes": 8500
+    },
+    {
+      "path": "preview/forge-conductor-icon-pack-preview.png",
+      "sha256": "52ae92363ef905d0a3be5760b4dd4f8e4566ed14b0ae56eefaa374a2e1bfdd05",
+      "bytes": 1814298
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "system_keys": [
+    "arch",
+    "cpu",
+    "disk",
+    "disk_io",
+    "gpu",
+    "host",
+    "platform",
+    "processes",
+    "ram",
+    "ts"
+  ],
+  "forge_keys": [
+    "agent_sessions",
+    "agents",
+    "agents_summary",
+    "audit_recent",
+    "diagnostics",
+    "feed_stats",
+    "files",
+    "home",
+    "jobs",
+    "live_feed",
+    "mcp_load",
+    "mcp_packs",
+    "mcp_servers",
+    "mcp_tools",
+    "orchestration",
+    "presence",
+    "presence_count",
+    "ts"
+  ]
+}

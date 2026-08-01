@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>FORGE RIG // TELEMETRY</title>
+  <!-- Critical CSS inline so the page is readable even if /static/style.css fails -->
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #02040a;
+      color: #e8fbff;
+      font-family: ui-monospace, "SF Mono", Menlo, Monaco, monospace;
+    }
+    #boot-banner {
+      margin: 12px;
+      padding: 12px 14px;
+      border: 1px solid #1de4ff;
+      background: #003040;
+      color: #e8fbff;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    #boot-banner.error { border-color: #ff3b5c; background: #400018; color: #ffb3c0; }
+    #boot-banner.ok { border-color: #2dff9a; }
+    .wrap { padding: 12px 16px 40px; position: relative; z-index: 2; }
+    h1 { color: #18f0ff; font-family: system-ui, sans-serif; letter-spacing: 0.12em; font-size: 1.1rem; }
+  </style>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div id="boot-banner">Loading Forge telemetry… if this never updates, open <code>http://127.0.0.1:7788/api/health</code></div>
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="grid-floor" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="brand-mark">◈</div>
+        <div>
+          <h1><span class="neon">FORGE</span> RIG <span class="dim">//</span> TELEMETRY</h1>
+          <div class="sub">SYSTEM · GPU · DISK · ORCHESTRATION · MCP · LIVE FEED</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="mgmt-btn" href="/control" id="mgmt-console-link" title="Open management console: start/stop service, settings">
+          <span class="mgmt-btn-icon" aria-hidden="true">⚙</span>
+          <span class="mgmt-btn-text">MANAGEMENT CONSOLE</span>
+        </a>
+        <div class="pills">
+          <div class="pill live" id="pill-link"><span class="dot" id="dot"></span>LINK</div>
+          <div class="pill" id="pill-updated">—</div>
+          <div class="pill" id="pill-orch">ORCH —</div>
+          <div class="pill" id="pill-mcp">MCP —</div>
+          <div class="pill" id="pill-agents">AGENTS —</div>
+          <div class="pill" id="pill-load">LOAD —</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="sys-strip">
+      <div class="sys-card">
+        <div class="sys-label">CPU</div>
+        <div class="sys-value" id="cpu-val">—<small>%</small></div>
+        <div class="meter"><i id="cpu-bar"></i></div>
+        <div class="sys-meta" id="cpu-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">FREQ</div>
+        <div class="sys-value" id="freq-val">—<small>MHz</small></div>
+        <div class="meter"><i id="freq-bar"></i></div>
+        <div class="sys-meta" id="freq-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">RAM</div>
+        <div class="sys-value" id="ram-val">—<small>%</small></div>
+        <div class="meter ram"><i id="ram-bar"></i></div>
+        <div class="sys-meta" id="ram-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">GPU</div>
+        <div class="sys-value" id="gpu-val">—<small>%</small></div>
+        <div class="meter gpu"><i id="gpu-bar"></i></div>
+        <div class="sys-meta" id="gpu-meta">—</div>
+      </div>
+      <div class="sys-card">
+        <div class="sys-label">DISK I/O</div>
+        <div class="sys-value" id="disk-val">—<small>MB/s</small></div>
+        <div class="meter pwr"><i id="disk-bar"></i></div>
+        <div class="sys-meta" id="disk-meta">—</div>
+      </div>
+      <div class="sys-card chart-card">
+        <div class="sys-label">LOAD TRACE</div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      </div>
+    </section>
+
+    <section class="sys-detail-row">
+      <div class="panel cores-panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> CPU CORES</h2>
+          <span class="panel-meta" id="cores-meta">—</span>
+        </div>
+        <div class="core-bars" id="core-bars"></div>
+      </div>
+      <div class="panel disk-panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> STORAGE</h2>
+          <span class="panel-meta" id="storage-meta">—</span>
+        </div>
+        <div class="disk-list" id="disk-list"></div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> ORCHESTRATION</h2>
+          <span class="panel-meta" id="orch-panel-meta">—</span>
+        </div>
+        <div class="orch-grid" id="orch-cards"></div>
+        <div class="orch-log" id="orch-log"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> MCP SERVERS</h2>
+          <span class="panel-meta" id="mcp-panel-meta">—</span>
+        </div>
+        <div class="card-grid" id="mcp-cards"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> MCP TOOLS</h2>
+          <span class="panel-meta" id="tools-panel-meta">—</span>
+        </div>
+        <div class="pack-strip" id="pack-strip"></div>
+        <div class="card-grid tools" id="tool-cards"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> SUB-AGENTS</h2>
+          <span class="panel-meta" id="agent-panel-meta">—</span>
+        </div>
+        <div class="card-grid agents" id="agent-cards"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> HOT PROCESSES</h2>
+          <span class="panel-meta" id="proc-panel-meta">LM Studio · Forge · llama</span>
+        </div>
+        <div class="proc-table-wrap">
+          <table class="proc-table" id="proc-table">
+            <thead>
+              <tr><th>PID</th><th>NAME</th><th>CPU%</th><th>RSS</th></tr>
+            </thead>
+            <tbody id="proc-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel feed-panel">
+        <div class="panel-head">
+          <h2><span class="chev">▸</span> LIVE STREAM <span class="blink">▮</span> TOOLS · AGENTS · DIAGNOSTICS</h2>
+          <span class="panel-meta" id="feed-meta">—</span>
+        </div>
+        <div class="feed-window">
+          <div class="feed-scroll" id="live-feed"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div>NODE SIDECAR · <span id="origin">local</span> · LAN · NO AUTH · MCP-SAFE</div>
+      <div id="footer-meta">—</div>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+  <noscript>
+    <div id="boot-banner" class="error" style="margin:16px">
+      JavaScript is disabled. Enable it for live metrics, or open
+      <a href="/api/snapshot" style="color:#18f0ff">/api/snapshot</a> as JSON.
+    </div>
+  </noscript>
+</body>
+</html>
